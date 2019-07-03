@@ -1,0 +1,7 @@
+[package]
+name = "wago750"
+version = "0.1.0"
+authors = ["yadaniel <ya.daniel@inbox.ru>"]
+edition = "2018"
+
+[dependencies]

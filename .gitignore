@@ -1,4 +1,8 @@
 *.exe
 *.dll
+*.bin
 *.o
+*.d
+debug/
+
 

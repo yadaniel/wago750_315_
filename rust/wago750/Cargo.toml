@@ -5,3 +5,17 @@ authors = ["yadaniel <ya.daniel@inbox.ru>"]
 edition = "2018"
 
 [dependencies]
+
+[profile.dev]
+opt-level = 0
+
+[profile.release]
+opt-level = 3
+
+#0: no optimizations
+#1: basic optimizations
+#2: some optimizations
+#3: all optimizations
+#s: optimize for binary size
+#z: optimize for binary size, but also turn off loop vectorization.
+

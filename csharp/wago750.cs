@@ -56,6 +56,17 @@ public class ModbusCRC16 {
         }
     }
 
+    public static void printTable() {
+        int x = 0;
+        foreach(short val in table) {
+            if(x % 16 == 0) {
+                Console.WriteLine();
+            }
+            x += 1;
+            Console.Write($"{val:X4},");
+        }
+    }
+
     public UInt16 getCRC(byte[] input) {
         UInt16 crc, tmp, short_c;
         crc = CRC_START_MODBUS;

@@ -3,6 +3,9 @@
 *.bin
 *.o
 *.d
+*.json
+*.orig
 debug/
+target/
 
 

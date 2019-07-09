@@ -16,6 +16,8 @@ class App : IDisposable {
     private Wago_750559 wago559;
 
     static int Main(string[] args) {
+        // wago750.ModbusCRC16.printTable();
+        // return 0;
         App app = new App(args);
         return app.run();
     }

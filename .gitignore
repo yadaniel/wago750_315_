@@ -6,6 +6,7 @@
 *.json
 *.orig
 debug/
+Debug/
 target/
 
 

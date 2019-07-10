@@ -107,7 +107,36 @@ fn testing_area() {
     };
 }
 
+extern crate serial;
+fn test_serial_() {
+    use serial::prelude::*;
+    use std::env;
+    use std::io;
+    use std::io::prelude::*;
+    use std::time::Duration;
+
+    let mut port = serial::open("com27").unwrap();
+    port.reconfigure(&|settings| {
+        settings.set_baud_rate(serial::Baud19200);
+        settings.set_char_size(serial::Bits8);
+        settings.set_parity(serial::ParityEven);
+        settings.set_stop_bits(serial::Stop1);
+        settings.set_flow_control(serial::FlowNone);
+        Ok(())
+    });
+    port.set_timeout(Duration::from_millis(20));
+
+    let mut buf: Vec<u8> = (0..255).collect();
+    println!("{:?}", buf);
+
+    port.write(&buf[..]);
+    port.read(&mut buf[..]);
+
+    println!("{:?}", buf);
+}
+
 fn main() {
     test_checksum_();
+    test_serial_();
     std::process::exit(0);
 }

@@ -5,6 +5,7 @@ authors = ["yadaniel <ya.daniel@inbox.ru>"]
 edition = "2018"
 
 [dependencies]
+serial = "0.4.0"
 
 [profile.dev]
 opt-level = 0

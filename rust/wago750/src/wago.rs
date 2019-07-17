@@ -105,9 +105,32 @@ impl WagoModule {
                 buf.push((tmp & 0xFF) as u8);
                 buf.push((tmp >> 8) as u8);
                 port.write(&buf[..]);
+                println!("debug 530 {:02X?} = {}", buf, value);
+                // empty serial buffer
+                let mut buf: [u8; 10] = [0; 10];
+                port.read(&mut buf[..]);
             }
             Wago750430 { res_io: _, io: _ } => (),
-            Wago750515 { res_io: _, io: _ } => (),
+            Wago750515 { res_io: _, io: io_ } => {
+                let mut buf: Vec<u8> = vec![
+                    modbus_address,
+                    WRITE_BITS,
+                    0x00,
+                    0x00 + io_.3,
+                    0x00,
+                    0x08,
+                    0x01,
+                    value,
+                ];
+                let tmp: u16 = checksum(&buf);
+                buf.push((tmp & 0xFF) as u8);
+                buf.push((tmp >> 8) as u8);
+                port.write(&buf[..]);
+                println!("debug 515 {:02X?} = {}", buf, value);
+                // empty serial buffer
+                let mut buf: [u8; 10] = [0; 10];
+                port.read(&mut buf[..]);
+            }
             Wago750468 { res_io: _, io: _ } => (),
             Wago750559 { res_io: _, io: _ } => (),
         }
@@ -125,11 +148,18 @@ impl WagoModule {
                 buf.push((tmp & 0xFF) as u8);
                 buf.push((tmp >> 8) as u8);
                 port.write(&buf[..]);
+                print!("debug 430 {:02X?}", buf);
                 // read
                 let mut buf: [u8; 10] = [0; 10];
                 match port.read(&mut buf[..]) {
-                    Ok(readn) if readn == 6 => buf[3],
-                    _ => 0,
+                    Ok(readn) if readn == 6 => {
+                        println!(" <= 430 {:02X?}", &buf[0..6]);
+                        buf[3]
+                    }
+                    _ => {
+                        println!();
+                        0
+                    }
                 }
             }
             Wago750515 { res_io: _, io: _ } => 0,
@@ -159,66 +189,66 @@ impl Wago {
                         res_io: res_io_,
                         io: _,
                     } => {
-                        addr_io += res_io_;
                         *module = Wago750315 {
                             res_io: res_io_,
                             io: addr_io,
                         };
+                        addr_io += res_io_;
                     }
 
                     Wago750430 {
                         res_io: res_io_,
                         io: _,
                     } => {
-                        addr_io += res_io_;
                         *module = Wago750430 {
                             res_io: res_io_,
                             io: addr_io,
                         };
+                        addr_io += res_io_;
                     }
 
                     Wago750530 {
                         res_io: res_io_,
                         io: _,
                     } => {
-                        addr_io += res_io_;
                         *module = Wago750530 {
                             res_io: res_io_,
                             io: addr_io,
                         };
+                        addr_io += res_io_;
                     }
 
                     Wago750515 {
                         res_io: res_io_,
                         io: _,
                     } => {
-                        addr_io += res_io_;
                         *module = Wago750515 {
                             res_io: res_io_,
                             io: addr_io,
                         };
+                        addr_io += res_io_;
                     }
 
                     Wago750468 {
                         res_io: res_io_,
                         io: _,
                     } => {
-                        addr_io += res_io_;
                         *module = Wago750468 {
                             res_io: res_io_,
                             io: addr_io,
                         };
+                        addr_io += res_io_;
                     }
 
                     Wago750559 {
                         res_io: res_io_,
                         io: _,
                     } => {
-                        addr_io += res_io_;
                         *module = Wago750559 {
                             res_io: res_io_,
                             io: addr_io,
                         };
+                        addr_io += res_io_;
                     }
                 };
             }
@@ -237,7 +267,8 @@ impl Wago {
                     settings.set_flow_control(serial::FlowNone);
                     Ok(())
                 });
-                port.set_timeout(Duration::from_millis(20));
+                // port.set_timeout(Duration::from_millis(20));
+                port.set_timeout(Duration::from_millis(35));
                 self.port = Some(port);
                 return true;
             }

@@ -1,4 +1,4 @@
-﻿// #define DBG
+﻿#define DBG
 
 using System;
 using System.Text;
@@ -360,6 +360,7 @@ public class Wago_750468 : WagoModule {
             int low = recvBytes[4];
             int hexValue = (high << 8) | low;
             voltage = ((double) hexValue)/0x7FFF*10.0;
+            // Console.WriteLine($" => {voltage}");
             return true;
         } else {
             voltage = 0;

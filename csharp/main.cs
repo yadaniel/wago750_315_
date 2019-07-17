@@ -1,4 +1,4 @@
-// #define DBG
+#define DBG
 
 using System;
 using System.IO.Ports;
@@ -28,7 +28,7 @@ class App : IDisposable {
         }
         serialPort = new SerialPort();
         serialPort.PortName = string.Format($"COM{port}");
-        serialPort.ReadTimeout = 20;
+        serialPort.ReadTimeout = 35;
         serialPort.BaudRate = 19200;
         serialPort.DataBits = 8;
         serialPort.StopBits = StopBits.One;
@@ -91,23 +91,23 @@ class App : IDisposable {
         //     Console.WriteLine("no response");
         // }
 
-        // // operate wago468
-        // for(int channel=0; channel<4; channel++) {
-        //     double inVoltage;
-        //     if(wago468.get(out inVoltage, channel)) {
-        //         Console.WriteLine($"channel[{channel}] = {0:0.000}", inVoltage);
-        //     } else {
-        //         Console.WriteLine($"channel[{channel}] no response");
-        //     }
-        // }
-
-        // operate wago559
+        // operate wago468
         for(int channel=0; channel<4; channel++) {
-            for(double outVoltage=0; outVoltage<10; outVoltage+=2.5) {
-                wago559.set(outVoltage, channel);
-                Thread.Sleep(3000);
+            double inVoltage;
+            if(wago468.get(out inVoltage, channel)) {
+                Console.WriteLine($"channel[{channel}] = {inVoltage:0.00}");
+            } else {
+                Console.WriteLine($"channel[{channel}] no response");
             }
         }
+
+        // // operate wago559
+        // for(int channel=0; channel<4; channel++) {
+        //     for(double outVoltage=0; outVoltage<10; outVoltage+=2.5) {
+        //         wago559.set(outVoltage, channel);
+        //         Thread.Sleep(3000);
+        //     }
+        // }
 
         // do not rely on ~App and cleanup resources
         Dispose();
@@ -115,4 +115,6 @@ class App : IDisposable {
         return 0;
     }
 }
+
+
 

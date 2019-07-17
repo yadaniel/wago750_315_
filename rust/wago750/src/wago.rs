@@ -167,6 +167,41 @@ impl WagoModule {
             Wago750559 { res_io: _, io: _ } => 0,
         }
     }
+
+    pub fn get_volt(&self, modbus_address: u8, port: &mut SystemPort, channel: u8) -> f64 {
+        match *self {
+            Wago750468 { res_io: _, io: io_ } => {
+                // write
+                let mut buf: Vec<u8> = vec![
+                    modbus_address,
+                    READ_WORDS,
+                    0x00,
+                    0x00 + io_.0 + channel,
+                    0x00,
+                    0x01,
+                ];
+                let tmp: u16 = checksum(&buf);
+                buf.push((tmp & 0xFF) as u8);
+                buf.push((tmp >> 8) as u8);
+                port.write(&buf[..]);
+                print!("debug 468 {:02X?}", buf);
+                // read
+                let mut buf: [u8; 10] = [0; 10];
+                match port.read(&mut buf[..]) {
+                    Ok(readn) if readn == 7 => {
+                        println!(" <= 468 {:02X?}", &buf[0..7]);
+                        let tmp: u16 = ((buf[3] as u16) << 8) | buf[4] as u16;
+                        (tmp as f64) / (0x7FFF as f64) * 10.0
+                    }
+                    _ => {
+                        println!();
+                        0.0
+                    }
+                }
+            }
+            _ => 0.0,
+        }
+    }
 }
 
 pub struct Wago {
@@ -286,6 +321,14 @@ impl Wago {
             module.get(self.modbus_address, port)
         } else {
             0
+        }
+    }
+
+    pub fn get_volt(&mut self, module: WagoModule, channel: u8) -> f64 {
+        if let Some(port) = &mut self.port {
+            module.get_volt(self.modbus_address, port, channel)
+        } else {
+            0.0
         }
     }
 

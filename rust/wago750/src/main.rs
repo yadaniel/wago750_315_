@@ -45,15 +45,22 @@ fn main() {
         // wago530.at(wago).set(0xFF);
         // wago.set(wago530).set(0xFF);
 
-        // test 530
-        for v in 0..256 {
-            wago.set(w530, v as u8);
-            std::thread::sleep(std::time::Duration::from_millis(100));
-        }
-        wago.set(w530, 0x00);
+        // // test 530
+        // for v in 0..256 {
+        //     wago.set(w530, v as u8);
+        //     std::thread::sleep(std::time::Duration::from_millis(100));
+        // }
+        // wago.set(w530, 0x00);
 
         // test 430
-        let v = wago.get(w430);
+        loop {
+            let v = wago.get(w430);
+            println!("w430=0b{0:08b}", v);
+            std::thread::sleep(std::time::Duration::from_millis(100));
+            if v != 0 {
+                break;
+            }
+        }
     } else {
         println!("init_serial: failed");
     }

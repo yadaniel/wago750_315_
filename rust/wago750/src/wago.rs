@@ -117,10 +117,20 @@ impl WagoModule {
         match *self {
             Wago750315 { res_io: _, io: _ } => 0,
             Wago750530 { res_io: _, io: _ } => 0,
-            Wago750430 { res_io: _, io: _ } => {
+            Wago750430 { res_io: _, io: io_ } => {
+                // write
+                let mut buf: Vec<u8> =
+                    vec![modbus_address, READ_BIT, 0x00, 0x00 + io_.1, 0x00, 0x08];
+                let tmp: u16 = checksum(&buf);
+                buf.push((tmp & 0xFF) as u8);
+                buf.push((tmp >> 8) as u8);
+                port.write(&buf[..]);
+                // read
                 let mut buf: [u8; 10] = [0; 10];
-                port.read(&mut buf[..]);
-                buf[0] // TODO
+                match port.read(&mut buf[..]) {
+                    Ok(readn) if readn == 6 => buf[3],
+                    _ => 0,
+                }
             }
             Wago750515 { res_io: _, io: _ } => 0,
             Wago750468 { res_io: _, io: _ } => 0,

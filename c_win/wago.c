@@ -70,6 +70,9 @@ bool plc_add(plc_t * self, wago_module_t * mod) {
         case W515:
             outBits = 4;
             break;
+        case W559:
+            outWords = 2;
+            break;
         default:
             return false;
         }
@@ -94,6 +97,8 @@ bool plc_mod_set(plc_t * self, wago_module_t * mod, uint8_t val) {
     case W430:
         return false;
     case W468:
+        return false;
+    case W559:
         return false;
     case W515: /* fallthrough */
     case W530:
@@ -153,6 +158,8 @@ bool plc_mod_get(plc_t * self, wago_module_t * mod, uint8_t * val) {
         break;
     case W468:
         break;
+    case W559:
+        break;
     case W515:
         break;
     default:
@@ -183,6 +190,8 @@ bool plc_mod_get(plc_t * self, wago_module_t * mod, uint8_t * val) {
     case W530:
         break;
     case W468:
+        break;
+    case W559:
         break;
     case W515:
         break;
@@ -215,6 +224,8 @@ bool plc_mod_get_volt(plc_t * self, wago_module_t * mod, uint8_t channel, double
     case W430:
     case W515:
         break;
+    case W559:  // TODO
+        break;
     default:
         return false;
     }
@@ -246,6 +257,69 @@ bool plc_mod_get_volt(plc_t * self, wago_module_t * mod, uint8_t channel, double
     case W530:
     case W430:
     case W515:
+        break;
+    case W559:
+        // TODO
+        break;
+    default:
+        return false;
+    }
+
+    return true;
+}
+
+bool plc_mod_set_volt(plc_t * self, wago_module_t * mod, uint8_t channel, double val) {
+    uint8_t send_data[32] = {};
+    uint8_t send_length = 0;
+    uint16_t crc = 0;
+    uint16_t hexValue = (uint16_t)val/10*0x7FFF;
+    uint8_t high = (byte)((hexValue >> 8) & 0xFF);
+    uint8_t low = (byte)(hexValue & 0xFF);
+    switch(mod->type) {
+    case W559:
+        send_length = 0;
+        send_data[send_length++] = self->modbus_addr;
+        send_data[send_length++] = WRITE_WORD;
+        send_data[send_length++] = 0x00;
+        send_data[send_length++] = 0x00 + mod->io.outWords + channel;
+        send_data[send_length++] = high;
+        send_data[send_length++] = low;
+        crc = get_crc(&send_data[0], send_length);
+        send_data[send_length++] = crc & 0xFF;
+        send_data[send_length++] = (crc >> 8) & 0xFF;
+        break;
+    case W315:
+    case W530:
+    case W430:
+    case W515:
+    case W468:
+        break;
+    default:
+        return false;
+    }
+
+    // send
+    HANDLE handle = self->comHandle;
+    LPCVOID outBuffer = &send_data[0];
+    DWORD size = send_length;
+    DWORD written = 0;
+    LPOVERLAPPED unknown = NULL;
+    WriteFile(handle, outBuffer, size, &written, unknown);
+
+    // receive
+    uint8_t recvData[100] = {};
+    DWORD read = 0;
+    ReadFile(handle, (void *)&recvData[0], 100, &read, unknown);
+
+    switch(mod->type) {
+    case W559:
+        // TODO
+        break;
+    case W315:
+    case W530:
+    case W430:
+    case W515:
+    case W468:
         break;
     default:
         return false;

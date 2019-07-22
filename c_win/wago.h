@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <windows.h>
 
-typedef enum { W315, W430, W530, W468, W515} wago750_modtype_t;
+typedef enum { W315, W430, W530, W468, W515, W559} wago750_modtype_t;
 
 typedef struct {
     uint8_t inBits;

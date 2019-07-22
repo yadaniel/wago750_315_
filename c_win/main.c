@@ -8,11 +8,12 @@
 void run() {
     plc_t wago = {.modbus_addr = 1, .com = 28, .comHandle = INVALID_HANDLE_VALUE};
 
-    wago_module_t w315 = {.type = W315};
-    wago_module_t w430 = {.type = W430};
-    wago_module_t w530 = {.type = W530};
-    wago_module_t w468 = {.type = W468};
-    wago_module_t w515 = {.type = W515};
+    wago_module_t w315 = {.type = W315};   // coupler
+    wago_module_t w430 = {.type = W430};   // 8DI 24V
+    wago_module_t w530 = {.type = W530};   // 8DO 24V
+    wago_module_t w468 = {.type = W468};   // 4AI 10V
+    wago_module_t w515 = {.type = W515};   // 4DO NO
+    /* wago_module_t w559 = {.type = W559};   // 4AO 10V */
 
     bool ok = plc_init(&wago) &&
               plc_add(&wago, &w315) &&

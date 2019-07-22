@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -std=c11
+CFLAGS = -Wall -Wswitch-enum -std=c11
 LFLAGS = 
 
 SRC_FILES = main.c crc.c wago.c
